@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sonsuz Yolculuğumuz ❤️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Dancing+Script:wght@600&family=Great+Vibes&display=swap" rel="stylesheet">
+    <style>
+        :root { --p: #e91e63; --bg: #fce4ec; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; scroll-behavior: smooth; }
+        
+        body { 
+            background-color: var(--bg); 
+            transition: background-color 0.8s ease; 
+            overflow-x: hidden; 
+            width: 100%; 
+            min-height: 100vh;
+        }
+
+        /* YILDIZLI ARKA PLAN */
+        #stars-bg { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            pointer-events: none; 
+            opacity: 0; 
+            z-index: 0; 
+            transition: opacity 1s ease;
+            background: radial-gradient(circle at center, #1a1a2e 0%, #0a0a12 100%);
+        }
+
+        /* MÜZİK BUTONU */
+        #music-btn {
+            position: fixed; top: 20px; right: 20px; z-index: 2500;
+            width: 50px; height: 50px; background: rgba(255,255,255,0.4);
+            backdrop-filter: blur(12px); border-radius: 50%; border: 2px solid white;
+            display: none; justify-content: center; align-items: center; cursor: pointer;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15); font-size: 1.5rem;
+        }
+        .spin { animation: rotate 4s linear infinite; background: var(--p) !important; color: white; }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* GİRİŞ EKRANI */
+        #login-screen { height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; position: relative; z-index: 10; }
+        .login-card { background: white; padding: 40px 25px; border-radius: 40px; text-align: center; width: 100%; max-width: 400px; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
+        .pass-wrapper { position: relative; margin: 25px 0; }
+        input#pass { width: 100%; padding: 15px; border: 2.5px solid #ffb2cc; border-radius: 25px; text-align: center; font-size: 1.4rem; outline: none; }
+        .login-btn { width: 100%; padding: 18px; border: none; border-radius: 25px; background: var(--p); color: white; font-weight: 600; cursor: pointer; }
+
+        /* ANA AKIŞ */
+        #main-app { display: none; width: 100%; max-width: 500px; margin: 0 auto; padding: 100px 15px 80px; position: relative; z-index: 1; }
+        #counter-bar { 
+            position: fixed; top: 0; left: 0; width: 100%; 
+            background: rgba(255,255,255,0.2); backdrop-filter: blur(15px); 
+            padding: 20px 10px; text-align: center; z-index: 1000; 
+            color: var(--p); font-weight: 600; font-size: 1.1rem; 
+            transition: 0.5s;
+        }
+        .vertical-line { 
+            position: absolute; left: 50%; top: 0; bottom: 800px; 
+            width: 4px; background: linear-gradient(to bottom, var(--p), #6a1b9a, #ffffff); 
+            transform: translateX(-50%); z-index: 1; 
+        }
+
+        /* ANILAR */
+        .ani-node { position: relative; z-index: 5; margin-bottom: 60px; opacity: 0; transform: translateY(30px); transition: 1s; width: 100%; }
+        .reveal { opacity: 1; transform: translateY(0); }
+        .ani-card { background: white; border-radius: 25px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.08); text-align: center; cursor: pointer; }
+        .ani-card h3 { font-family: 'Dancing Script'; font-size: 2.2rem; color: var(--p); margin: 20px 10px; }
+        .ani-story { display: none; padding: 15px; animation: slideDown 0.5s ease-out; background: #fffafb; }
+        .ani-story img { width: 100%; border-radius: 15px; margin-bottom: 15px; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* MEKTUP KONTEYNER DÜZELTME */
+        #final-letter-container { 
+            position: relative; 
+            z-index: 10; 
+            margin-top: 120px; /* Sayaç çubuğunun altına girmemesi için boşluk artırıldı */
+            padding-bottom: 50px;
+        }
+        .paper {
+            background: #fff9e6; padding: 50px 25px; border-radius: 3px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2); position: relative;
+            border: 1px solid #eee; width: 100%;
+        }
+        .paper h2 { font-family: 'Great Vibes', cursive; font-size: 3.2rem; color: #b71c1c; margin-bottom: 25px; text-align: center; }
+        .letter-text { font-family: 'Dancing Script', cursive; font-size: 1.5rem; line-height: 1.6; color: #1a1a1a; text-align: center; }
+
+        /* POPUP */
+        #overlay-space { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: #000; z-index: 4000; display: none; 
+            flex-direction: column; align-items: center; justify-content: center; 
+            color: white; padding: 20px; 
+        }
+        .o-container { font-size: 2.5rem; word-break: break-all; color: var(--p); max-height: 60vh; overflow-y: auto; padding: 15px; text-align: center; width: 100%; line-height: 1.1; }
+        .stop-btn { margin-top: 30px; padding: 15px 35px; border-radius: 30px; border: 2px solid white; background: transparent; color: white; cursor: pointer; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+    <div id="stars-bg"></div>
+    <audio id="myAudio" loop>
+        <source src="muzik.mp3" type="audio/mpeg">
+    </audio>
+    
+    <div id="music-btn" onclick="toggleMusic()">🎵</div>
+
+    <div id="login-screen">
+        <div class="login-card">
+            <h2 style="font-family:'Dancing Script'; font-size:3rem; color:var(--p)">Bizim Yolumuz</h2>
+            <div style="font-size: 2.5rem; margin: 15px 0;">✨❤️✨</div>
+            <div class="pass-wrapper">
+                <input type="password" id="pass" placeholder="Gir Bakalım?">
+            </div>
+            <button class="login-btn" onclick="validate()">Giriş Yap Sevgilim</button>
+        </div>
+    </div>
+
+    <div id="main-app">
+        <div id="counter-bar">YÜKLENİYOR...</div>
+        <div class="vertical-line"></div>
+
+        <div class="ani-node" onclick="toggleStory(this)">
+            <div class="ani-card">
+                <h3>Bizim Hikayemiz ✨</h3>
+                <div class="ani-story">
+                    <img src="senin için yaptığım şeyler.jpeg">
+                    <p>Senin için bir şeyler yapmak içimdeki sevgiyi somut bir şeye dönüştürme çabam olmasa napacağız biz :(</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="ani-node" onclick="toggleStory(this)">
+            <div class="ani-card">
+                <h3>Sıkıca Tutun Bana ❤️</h3>
+                <div class="ani-story">
+                    <img src="eleletutusuyprum.jpeg">
+                    <p>Ellerini tuttuğumda senden başka bir şey aklıma gelmiyor. Sadece sen ve ben kalıyoruz.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="ani-node" onclick="toggleStory(this)">
+            <div class="ani-card">
+                <h3>En Tatlı Başlangıç 🍫</h3>
+                <div class="ani-story">
+                    <img src="ilk kez tatlı yemeye gittik.jpeg">
+                    <p>O ilk heyecanımız, tatlıdan daha tatlı gülüşün...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="ani-node" onclick="toggleStory(this)">
+            <div class="ani-card">
+                <h3>Küçük Sakarlıklar ☕</h3>
+                <div class="ani-story">
+                    <img src="daha first date'de yanıma kahve döktün.jpeg">
+                    <p>First date'de üzerime kahve dökmen? Hayat seninle asla sıkıcı olmayacağının farkına o zaman vardım. Belki de o yüzden seni çok seviyorumdur..</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="ani-node" onclick="startInfiniteO()">
+            <div class="ani-card" style="border:2.5px solid var(--p); background:#1a1a2e; color:white;">
+                <h3 style="color:#ff4081;">Tıkla Sevgilim ⭐</h3>
+                <p style="padding-bottom:15px; font-size:0.9rem; opacity:0.8;">Tıkla ve seni ne kadar çok sevdiğimi gör.</p>
+            </div>
+        </div>
+
+        <div id="final-letter-container">
+            <div class="paper">
+                <h2>Canım Görkem...</h2>
+                <div class="letter-text">
+                    Görkem, sevgilim... <br><br>
+                    Ayrı kaldığımız o dönem, benim için zamanın durduğu, gökyüzündeki tüm yıldızların söndüğü bir boşluk gibiydi. 
+                    Seni düşünmediğim, sesini özlemediğim tek bir saniye bile geçmedi. O sessiz günlerde anladım ki; 
+                    benim evim aslında bir yer değil, senin yanınmış. <br><br>
+                    Seni öyle çok özledim ki, bu özlemi anlatmaya kelimeler yetmiyor. Her sabah uyandığımda, her gece 
+                    kafamı yastığa koyduğumda sadece senin hayalinle nefes aldım. Kalbimdeki o büyük boşluğu sadece 
+                    senin varlığın, senin o eşsiz gülüşün doldurabilirdi. <br><br>
+                    Şimdi buradayız, yine "biz" olarak... Ve ben seni her zamankinden çok daha büyük bir aşkla seviyorum. 
+                    Bir daha asla o boşluğa düşmeyelim sevgilim, çünkü ben sensiz eksik, sensiz yarımım. <br><br>
+                    İyi ki döndün, iyi ki benimlesin... <br>
+                    Seni Sonsuza Kadar Seveceğim... ❤️
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="overlay-space">
+        <h2 style="font-family:'Dancing Script'; font-size:2.5rem;">Seni tam olarak...</h2>
+        <div class="o-container" id="o-stream"></div>
+        <button class="stop-btn" onclick="stopInfiniteO()">Canım Sevgilim ❤️</button>
+    </div>
+
+    <script>
+        const audio = document.getElementById('myAudio');
+        audio.volume = 0.2;
+
+        function toggleMusic() {
+            const btn = document.getElementById('music-btn');
+            if (audio.paused) { audio.play(); btn.classList.add('spin'); } 
+            else { audio.pause(); btn.classList.remove('spin'); }
+        }
+
+        function validate() {
+            if(document.getElementById('pass').value === "05022025") {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('main-app').style.display = 'block';
+                document.getElementById('music-btn').style.display = 'flex';
+                audio.play();
+                document.getElementById('music-btn').classList.add('spin');
+                setInterval(runCounter, 1000);
+                spawnStars();
+                initReveal();
+            }
+        }
+
+        function runCounter() {
+            const diff = new Date() - new Date("2025-02-05T00:00:00");
+            const d = Math.floor(diff / 86400000);
+            const h = Math.floor((diff / 3600000) % 24);
+            const m = Math.floor((diff / 60000) % 60);
+            const s = Math.floor((diff / 1000) % 60);
+            document.getElementById('counter-bar').innerHTML = `${d} GÜN ${h}S ${m}D ${s}SN`;
+        }
+
+        function toggleStory(node) {
+            const story = node.querySelector('.ani-story');
+            story.style.display = story.style.display === "block" ? "none" : "block";
+        }
+
+        window.addEventListener('scroll', () => {
+            const scrollPos = window.scrollY;
+            const windowHeight = window.innerHeight;
+            const fullHeight = document.documentElement.scrollHeight;
+            const ratio = scrollPos / (fullHeight - windowHeight);
+
+            if (ratio > 0.2) {
+                const darkVal = Math.max(0, 252 - (ratio * 300));
+                document.body.style.backgroundColor = `rgb(${darkVal/2}, ${darkVal/3}, ${darkVal/2})`;
+                document.getElementById('stars-bg').style.opacity = (ratio - 0.2) * 1.5;
+                
+                const bar = document.getElementById('counter-bar');
+                bar.style.background = "rgba(0,0,0,0.6)";
+                bar.style.color = "white";
+            } else {
+                document.body.style.backgroundColor = "#fce4ec";
+                document.getElementById('stars-bg').style.opacity = 0;
+                const bar = document.getElementById('counter-bar');
+                bar.style.background = "rgba(255,255,255,0.2)";
+                bar.style.color = "#e91e63";
+            }
+        });
+
+        function spawnStars() {
+            const c = document.getElementById('stars-bg');
+            for(let i=0; i<150; i++) {
+                const s = document.createElement('div');
+                const size = Math.random() * 2.5;
+                s.style.cssText = `position:absolute; left:${Math.random()*100}%; top:${Math.random()*100}%; width:${size}px; height:${size}px; background:white; border-radius:50%; box-shadow: 0 0 ${size*2}px white; opacity:${Math.random()};`;
+                c.appendChild(s);
+            }
+        }
+
+        function initReveal() {
+            const observer = new IntersectionObserver((ents) => {
+                ents.forEach(e => { if(e.isIntersecting) e.target.classList.add('reveal'); });
+            }, { threshold: 0.1 });
+            document.querySelectorAll('.ani-node').forEach(n => observer.observe(n));
+        }
+
+        let oTimer;
+        function startInfiniteO() {
+            document.getElementById('overlay-space').style.display = 'flex';
+            const box = document.getElementById('o-stream');
+            box.innerHTML = "SENİ ÇO";
+            oTimer = setInterval(() => {
+                box.innerHTML += "O";
+                box.scrollTop = box.scrollHeight;
+            }, 40);
+        }
+
+        function stopInfiniteO() {
+            clearInterval(oTimer);
+            document.getElementById('overlay-space').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
